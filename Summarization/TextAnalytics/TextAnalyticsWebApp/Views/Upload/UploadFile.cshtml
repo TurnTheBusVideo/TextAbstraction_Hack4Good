@@ -1,0 +1,145 @@
+﻿<script type="text/javascript">
+ //   $("#UploadFile").submit(function (e) {
+ //           $("#loadingElement").show();
+ //});
+</script>
+
+
+<h3>Summarize and Translate</h3>
+
+@using (Html.BeginForm("UploadFile", "Upload", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+
+    <div>
+        <table>
+            <tr class="row">
+                <td class="col-sm-3 x-hidden-focus">
+                    <label class="form-control-static" for="file">File of text to extract Summary  </label>
+                </td>
+                <td class="col-sm-6">
+                    <input type="file" name="file" accept=".txt" required="required">
+                </td>
+            </tr>
+
+            <tr class="row">
+                <td class="col-sm-3 x-hidden-focus">
+                    <label class="form-control-static" for="abstractPercent">Enter pecentage of abstraction(for e.g., 10)</label>
+                </td>
+                <td class="col-sm-6">
+                    @Html.TextBox("abstractPercent", "", new { required = "required", type = "text", @class = "form-control" })
+                </td>
+            </tr>
+
+            <tr class="row">
+                <td class="col-sm-3 x-hidden-focus">
+                    <label class="form-control-static" for="textType">Select Text type:</label>
+                </td>
+                <td class="col-sm-6">
+                    @Html.DropDownList("textType", new SelectList(new List<string>() { "Sports", "Science", "Energy", "History", "Default" }), "Select text type:", new { required = "required", type = "text", @class = "form-control" })
+                </td>
+            </tr>
+
+            <tr class="row ">
+                <td class="col-sm-3 x-hidden-focus">
+                    <label class="form-control-static">Target language to display summary in</label>
+                </td>
+                <td class="col-sm-6">
+                    @Html.DropDownList("targetLanguage", ViewBag.supportedLanguages as SelectList, new { required = "required", @class = "form-control", id = "targetLanguage" })
+
+                </td>
+            </tr>
+
+            <tr class="row">
+
+
+                <td class="col-sm-6">
+                    <input type="submit" value="Summarize" class="btn btn-primary btn-lg" />
+                </td>
+                <td class="col-sm-3"></td>
+            </tr>
+        </table>
+    </div>
+    <div id="loadingElement" style="display: none;">
+        <img src="~/fonts/ajax-loader.gif" alt="Loading..." />
+    </div>
+}
+<div class="text-info">
+    <br />
+    @ViewBag.Message
+    <br />
+</div>
+
+@if (ViewBag.logFileContent != null)
+{
+    <div style="width: 80%;
+  background: gray;
+  display: inline;">
+        <h3>Uploaded Content</h3> <br />
+        @Html.TextArea("UploadedContent", (string)ViewBag.logFileContent, new
+   {
+       @style = "width:700px;height:200px;max-height:200px;max-width:700px;max-height:200px;",
+       @readonly = "readonly"
+   })
+    </div>
+}
+
+@if (ViewBag.SummarizedContent != null)
+{using (Html.BeginForm("DownloadFile", "Upload", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div>
+            <h3>Summarized Text <input type="submit" value="(Download)" class="btn btn-primary btn-lg" /></h3>
+            @Html.TextArea("fileContent", (string)ViewBag.SummarizedContent, new
+       {
+
+           @style = "width:700px;height:200px;max-height:200px;max-width:700px;max-height:200px;",
+           @readonly = "readonly"
+       })
+
+        </div>
+}
+}
+@if (ViewBag.AnalyzedFileContent != null)
+{
+    <div>
+        <h3>Analyzed KeyPhrases</h3> <br />
+        <table class="jumbotron">
+            <tr class="lead row">
+                <th class="col-md-4">
+                    Line Number
+                </th>
+                <th class="col-md-4">
+                    Key Phrase
+                </th>
+                <th class="col-md-4">
+                    Category
+                </th>
+                <th class="col-md-4">Confidence Score</th>
+            </tr>
+
+            @foreach (TextAnalytics.Models.RawTextAnalytics item in ViewBag.AnalyzedFileContent)
+            {
+                var lineNumber = item.LineNumber;
+                foreach (var entity in item.entities)
+                {
+                    <tr class="row">
+                        <td class="col-md-4">
+                            @lineNumber.ToString()
+                        </td>
+                        <td class="col-md-4">
+                            @entity.Text.ToString()
+                        </td>
+                        <td class="col-md-4">
+                            @entity.Category.ToString()
+                        </td>
+                        <td class="col-md-4">
+                            @entity.ConfidenceScore.ToString()
+                        </td>
+                    </tr>
+                }
+            }
+
+        </table>
+    </div>
+}
+
+
